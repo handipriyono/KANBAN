@@ -1,14 +1,52 @@
 <template>
     <div class="homes">
-
-
         <!-- //end of modals -->
-
 <modals/>
    <buttons/>
         <!-- //compontent -->
         <div class="container">
+
             <div class="row">
+              <div class="col-sm">
+                  <div class="card text-center">
+                      <div class="card-header text-white bg-success ">BACKLOG </div>
+                      <!-- //start body -->
+                      <div class="card-body" v-for="(todo,index) in backlogs" :key="index">
+                          <div class="card">
+                              <div class="card-header">
+                                  <strong>{{todo.task}}</strong>
+                              </div>
+                              <div class="card-body">
+                                  <p class="card-text desc">
+                                      <strong>Description : </strong>{{todo.description}}
+                                  </p>
+                                    <hr/>
+                                  <p class="card-text">
+                                      <strong>Assign to: </strong>
+                                      <font color="red">{{todo.assignto}}</font>
+                                  </p>
+                              </div>
+                              <div class="card-footer d-flex justify-content-between">
+                                  <div class="btn-group" role="group">
+                             <!-- //empty -->
+                             <div class="btn-group" role="group">
+                                 <button @click="deletebacklog(index)" type="submit" class="btn btn-outline-danger btn-sm">Delete</button>
+                             </div>
+
+                                  </div>
+                                  <div class="btn-group" role="group">
+                                      <button @click="entertodo(index)" type="button" class="btn btn-outline-primary btn-sm">
+                                          <i class="fas fa-arrow-right">-> Next</i>
+                                      </button>
+                                  </div>
+                              </div>
+                          </div>
+                      </div>
+                  </div>
+              </div>
+
+
+
                 <div class="col-sm">
                     <div class="card text-center">
                         <div class="card-header bg-secondary text-white">TODO </div>
@@ -22,6 +60,7 @@
                                     <p class="card-text desc">
                                         <strong>Description : </strong>{{todo.description}}
                                     </p>
+                                      <hr/>
                                     <p class="card-text">
                                         <strong>Assign to: </strong>
                                         <font color="red">{{todo.assignto}}</font>
@@ -29,7 +68,15 @@
                                 </div>
                                 <div class="card-footer d-flex justify-content-between">
                                     <div class="btn-group" role="group">
-                                        <button @click="doingtodo(index)" type="button" class="btn btn-outline-primary btn-sm"><i class="fas fa-arrow-right">next --></i>
+                               <!-- //empty -->
+                               <button @click="TodotoBacklog(index)" type="button" class="btn btn-outline-secondary btn-sm">
+                                   <i class="fas fa-arrow-left">-- Back</i>
+                               </button>
+
+                                    </div>
+                                    <div class="btn-group" role="group">
+                                        <button @click="doingtodo(index)" type="button" class="btn btn-outline-primary btn-sm">
+                                            <i class="fas fa-arrow-right">-> Next</i>
                                         </button>
                                     </div>
                                 </div>
@@ -51,6 +98,7 @@
                                     <p class="card-text desc">
                                         <strong>Description</strong>: {{todo.description}}
                                     </p>
+                                    <hr/>
                                     <p class="card-text">
                                         <strong>Assign To</strong>:{{todo.assignto}}
                                     </p>
@@ -83,6 +131,7 @@
                                     <p class="card-text desc">
                                         <strong>Description</strong>:{{todo.description}}
                                     </p>
+                                      <hr/>
                                     <p class="card-text">
                                         <strong>Assign To</strong>: {{todo.assignto}}
                                     </p>
@@ -102,141 +151,185 @@
                 </div>
             </div>
         </div>
+  <!-- <footers/> -->
     </div>
+
 </template>
 
 <script>
-    // @ is an alias to /src
-    import {
-        db, todo, doing, done
+// @ is an alias to /src
+import {
+  todo,
+  doing,
+  done,
+  backlog
+}
+  from '@/firebase/firebase.js'
+import buttons from '@/components/tes.vue'
+import modals from '@/components/modals.vue'
+// import footers from '@/components/footer.vue'
+// import listTodo from '@components/tes.vue'
+export default {
+  name: 'homes',
+  components: {
+    buttons,
+    modals
+
+  },
+  data () {
+    return {
+
+      taskname: '',
+      description: '',
+      assignto: '',
+      listTodo: [],
+      doingTodo: [],
+      doneList: [],
+      backlogs:[]
+
     }
-    from '@/firebase/firebase.js'
-    import buttons from '@/components/tes.vue'
-    import modals from '@/components/modals.vue'
-        // import listTodo from '@components/tes.vue'
-    export default {
-        name: 'homes',
-        components: {
-            buttons, modals
-        },
+  },
 
-        data() {
-            return {
-
-                taskname: '',
-                description: '',
-                assignto: '',
-                listTodo: [],
-                doingTodo: [],
-                doneList: []
-
-            }
-        },
+  created: function () {
+    backlog.on('value', snapshot => {
+      this.backlogs = snapshot.val()
+      console.log(this.backlogs, 'backlogs')
+    })
 
 
 
-        created: function() {
-            this.readTodo()
+    this.readTodo()
+    doing.on('value', snapshot => {
+      this.doingTodo = snapshot.val()
+      console.log(this.doingTodo)
+    })
 
-            doing.on("value", snapshot => {
-                this.doingTodo = snapshot.val()
-                console.log(this.doingTodo)
-            })
+    done.on('value', snapshot => {
+      this.doneList = snapshot.val()
+      console.log(this.doneList)
+    })
+  }, //end created
 
-            done.on("value", snapshot => {
-                this.doneList = snapshot.val()
-                console.log(this.doneList)
-            })
+  methods: {
+    deleteTask (index) {
+      console.log('hapus')
+      done.child(index).remove()
+    },
+    deletebacklog (index) {
+      console.log('hapus backlog')
+      backlog.child(index).remove()
+    },
 
-        },
-        methods: {
-            deleteTask(index) {
-                    console.log('hapus')
-                    done.child(index).remove()
-                },
+    createTodo: function () {
+      console.log('creates');
+      let task1 = {
+        task: this.taskname,
+        description: this.description,
+        assignto: this.assignto
+      }
+      backlog.push(task1)
+        .then(data => {
+          console.log('sjkskdjnknd????')
+          this.taskname = ''
+          this.description = ''
+          this.assignto = ''
+          // console.log(JSON.stringify(data))
+          swal('Good job!', 'You have added new kanban!', 'success')
+        })
+    },
 
-                createTodo: function() {
-                    let task1 = {
-                        task: this.taskname,
-                        description: this.description,
-                        assignto: this.assignto
-                    }
+    entertodo: function (index) {
+      console.log('untuk todo')
+      let doinglist = {}
+      backlog.child(index).once('value')
+        .then(snapshot => {
+          console.log(snapshot, 'isi snap')
+          doinglist = snapshot.val()
+          todo.child(index).set(doinglist)
+            .then(snapshot => {})
+        })
+      backlog.child(index).remove()
+    },
 
-                    todo.push(task1)
-                        .then(data => {
-                            console.log(task1)
-                            this.taskname = ''
-                            this.description = ''
-                            this.assignto = ''
-                            console.log(JSON.stringify(data))
-                            swal("Good job!", "You have added new kanban!", "success");
-                        })
 
-                },
+    doingtodo: function (index) {
+      console.log('masuk')
+      let doinglist = {}
+      todo.child(index).once('value')
+        .then(snapshot => {
+          console.log(snapshot, 'isi snap')
+          doinglist = snapshot.val()
+          doing.child(index).set(doinglist)
+            .then(snapshot => {})
+        })
+      todo.child(index).remove()
+    },
 
-                doingtodo: function(index) {
-                    console.log('masuk')
-                    let doinglist = {}
-                    todo.child(index).once('value')
-                        .then(snapshot => {
-                            console.log(snapshot, 'isi snap')
-                            doinglist = snapshot.val()
-                            doing.child(index).set(doinglist)
-                                .then(snapshot => {})
-                        })
-                    todo.child(index).remove()
-                },
 
-                donetoProcess: function(index) {
-                    console.log('done to process')
-                    let doinglist = {}
-                    done.child(index).once('value')
-                        .then(snapshot => {
-                            console.log(snapshot, 'isi snap')
-                            doinglist = snapshot.val()
-                            doing.child(index).set(doinglist)
-                                .then(snapshot => {})
-                        })
-                    done.child(index).remove()
-                },
+    donetoProcess: function (index) {
+      console.log('done to process')
+      let doinglist = {}
+      done.child(index).once('value')
+        .then(snapshot => {
+          console.log(snapshot, 'isi snap')
+          doinglist = snapshot.val()
+          doing.child(index).set(doinglist)
+            .then(snapshot => {})
+        })
+      done.child(index).remove()
+    },
 
-                processTodo: function(index) {
-                    console.log('done to process')
-                    let doinglist = {}
-                    doing.child(index).once('value')
-                        .then(snapshot => {
-                            console.log(snapshot, 'isi snap')
-                            doinglist = snapshot.val()
-                            todo.child(index).set(doinglist)
-                                .then(snapshot => {})
-                        })
-                    doing.child(index).remove()
-                },
+    TodotoBacklog: function (index) {
+      console.log('todo to backlog')
+      let doinglist = {}
+      todo.child(index).once('value')
+        .then(snapshot => {
+          console.log(snapshot, 'isi snap')
+          doinglist = snapshot.val()
+          backlog.child(index).set(doinglist)
+            .then(snapshot => {})
+        })
+      todo.child(index).remove()
+    },
 
-                doneTodolist: function(index) {
-                    // doneList
-                    let donetodo = {}
-                        // const doing = db.ref('doing/')
-                    doing.child(index).once('value')
-                        .then(snapshot => {
-                            donetodo = snapshot.val()
-                            done.child(index).set(donetodo)
-                                .then(snapshot => {})
-                        })
-                    doing.child(index).remove()
-                },
 
-                readTodo: function() {
-                    console.log('read')
-                    todo.on('value', snapshot => {
-                        this.listTodo = snapshot.val()
-                        console.log(',listodo', this.listTodo)
-                    })
-                }
-        }
+
+    processTodo: function (index) {
+      console.log('done to process')
+      let doinglist = {}
+      doing.child(index).once('value')
+        .then(snapshot => {
+          console.log(snapshot, 'isi snap')
+          doinglist = snapshot.val()
+          todo.child(index).set(doinglist)
+            .then(snapshot => {})
+        })
+      doing.child(index).remove()
+    },
+
+    doneTodolist: function (index) {
+      // doneList
+      let donetodo = {}
+      // const doing = db.ref('doing/')
+      doing.child(index).once('value')
+        .then(snapshot => {
+          donetodo = snapshot.val()
+          done.child(index).set(donetodo)
+            .then(snapshot => {})
+        })
+      doing.child(index).remove()
+    },
+
+    readTodo: function () {
+      console.log('read')
+      todo.on('value', snapshot => {
+        this.listTodo = snapshot.val()
+        console.log(',listodo', this.listTodo)
+      })
     }
+  }
+}
 </script>
-
 <style>
     .card-header {
         font-color: white

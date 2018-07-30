@@ -1,5 +1,6 @@
 <template>
-    <div class="container-fluid margin-top">
+  <div>
+    <footer class="footer">
         <div class="row">
             <div class="col-sm-12 bg-dark text-white mt-5 pt-4">
                 <div class="p-3 footer">
@@ -7,11 +8,13 @@
                 </div>
             </div>
         </div>
-    </div>
+    </footer>
+  </div>
 </template>
 
 <script>
 export default {
+  name: 'footers',
 }
 </script>
 

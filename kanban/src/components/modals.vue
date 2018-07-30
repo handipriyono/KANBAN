@@ -23,7 +23,7 @@
                   <button @click="createTodo" data-dismiss="modal" type="submit" class="btn btn-primary">Submit TODO</button>
               </div>
               <div class="modal-footer">
-                  <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+                  <button type="button" class="btn btn-danger" data-dismiss="modal">Cancel</button>
               </div>
           </div>
       </div>
@@ -33,42 +33,37 @@
 
 <script>
 import {
-    db, todo, doing, done
+  todo,backlog
 }
-from '@/firebase/firebase.js'
-
+  from '@/firebase/firebase.js'
 export default {
   name: 'modals',
-  data: function(){
-    return{
-taskname:'',
-description:'',
-assignto:''
-}
+  data: function () {
+    return {
+      taskname: '',
+      description: '',
+      assignto: ''
+    }
   },
 
-  methods:{
-
-    createTodo: function() {
-        let task1 = {
-            task: this.taskname,
-            description: this.description,
-            assignto: this.assignto
-        }
-
-        todo.push(task1)
-            .then(data => {
-                console.log(task1)
-                this.taskname = ''
-                this.description = ''
-                this.assignto = ''
-                console.log(JSON.stringify(data))
-                swal("Good job!", "You have added new kanban!", "success");
-            })
-
-    },
-
+  methods: {
+    createTodo: function () {
+      let task1 = {
+        task: this.taskname,
+        description: this.description,
+        assignto: this.assignto
+      }
+      backlog.push(task1)
+        .then(data => {
+          console.log(task1)
+          this.taskname = ''
+          this.description = ''
+          this.assignto = ''
+          console.log('backlog component is running')
+          swal('Good job!', 'You have added list to the Backlog !', 'success')
+        })
+    }
   }
-  }
+}
 
 </script>
